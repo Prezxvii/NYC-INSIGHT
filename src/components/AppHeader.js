@@ -1,18 +1,18 @@
-// src/components/AppHeader.js (Updated with react-router-dom Links and Survey button)
-
 import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, Button, Box, Stack, Menu, MenuItem, TextField, InputAdornment } from '@mui/material';
-import { KeyboardArrowDown as ArrowDownIcon, Search as SearchIcon } from '@mui/icons-material';
+import { AppBar, Toolbar, Typography, Button, Box, Stack, Menu, MenuItem, TextField, InputAdornment, IconButton, Drawer, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
+import { KeyboardArrowDown as ArrowDownIcon, Search as SearchIcon, Menu as MenuIcon, Close as CloseIcon } from '@mui/icons-material'; // Added MenuIcon and CloseIcon
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom'; // <-- NEW IMPORT for routing
+import { Link } from 'react-router-dom';
+
+// Define the custom font stack for the logo
+const logoFontFamily = '"Helvetica Neue", Arial, sans-serif'; 
 
 // Define the main navigation links
 const navLinks = [
-  // UPDATED: All paths are correctly set to their final routes
   { title: 'Home', path: '/' }, 
   { 
     title: 'City Insights', 
-    path: '#', // Set to '#' since it's just a dropdown trigger
+    path: '#',
     hasDropdown: true,
     dropdownItems: [
         { title: 'Latest News', path: '/news' },
@@ -31,13 +31,13 @@ const MotionArrowDownIcon = motion(ArrowDownIcon);
 
 const AppHeader = ({ searchValue, onSearchChange }) => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [mobileOpen, setMobileOpen] = useState(false); // NEW: State for mobile drawer
   const open = Boolean(anchorEl);
 
-  // We find the link item to power the dropdown menu
   const insightLink = navLinks.find(link => link.hasDropdown);
 
+  // Handlers for desktop dropdown menu
   const handleMenuClick = (event) => {
-    // Only open the menu if the link has a dropdown
     if (insightLink) {
         setAnchorEl(event.currentTarget);
     }
@@ -46,6 +46,70 @@ const AppHeader = ({ searchValue, onSearchChange }) => {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+  
+  // Handlers for mobile drawer menu
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  const drawer = (
+    <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1 }}>
+        <IconButton sx={{ color: 'primary.main' }}>
+            <CloseIcon />
+        </IconButton>
+      </Box>
+      <Divider />
+      <List>
+        {navLinks.map((link) => (
+          <ListItem key={link.title} disablePadding>
+            <ListItemButton 
+              component={Link} 
+              to={link.path !== '#' ? link.path : link.title === 'City Insights' ? '/news' : link.path} // Link 'City Insights' to the first item for simplicity
+              onClick={link.hasDropdown ? undefined : handleDrawerToggle}
+              sx={{ textAlign: 'center', py: 1.5 }}
+            >
+              <ListItemText 
+                primary={link.title} 
+                primaryTypographyProps={{ 
+                  fontWeight: link.isHighlight ? 700 : 500,
+                  color: link.isHighlight ? '#ffffff' : 'primary.main',
+                  backgroundColor: link.isHighlight ? '#000000' : 'transparent',
+                  padding: link.isHighlight ? '8px 16px' : '0',
+                  borderRadius: link.isHighlight ? '4px' : '0',
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+        ))}
+        {/* Mobile Auth Links */}
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 3, mb: 2 }}>
+            <Button 
+                variant="text" 
+                color="primary" 
+                component={Link} 
+                to="/login"
+                onClick={handleDrawerToggle}
+            >
+                Login
+            </Button>
+            <Button 
+                variant="contained" 
+                sx={{ 
+                  backgroundColor: '#000000', 
+                  color: '#ffffff', 
+                  '&:hover': { backgroundColor: '#333333' } 
+                }}
+                component={Link} 
+                to="/signup"
+                onClick={handleDrawerToggle}
+            >
+                Sign Up
+            </Button>
+        </Box>
+      </List>
+    </Box>
+  );
 
   return (
     <AppBar 
@@ -58,7 +122,7 @@ const AppHeader = ({ searchValue, onSearchChange }) => {
         zIndex: (theme) => theme.zIndex.appBar 
       }}
     >
-      <Toolbar sx={{ justifyContent: 'space-between', py: 1 }}>
+      <Toolbar sx={{ justifyContent: 'space-between', py: { xs: 1, md: 1 } }}>
         
         {/* 1. Website Name / Logo (Left) */}
         <Typography 
@@ -66,39 +130,40 @@ const AppHeader = ({ searchValue, onSearchChange }) => {
           noWrap 
           component={Link}
           to="/"
-          sx={{ fontWeight: 700, letterSpacing: '2px', cursor: 'pointer', textDecoration: 'none', color: 'primary.main' }}
+          sx={{ 
+            fontWeight: 800, 
+            letterSpacing: '2px', 
+            cursor: 'pointer', 
+            textDecoration: 'none', 
+            color: 'primary.main',
+            fontFamily: logoFontFamily, // Applied logo font
+          }}
         >
           NYC INSIGHT
         </Typography>
 
-        {/* 2. Centered Navigation Links (Middle) */}
+        {/* 2. Centered Navigation Links (Desktop Only) */}
         <Box sx={{ display: { xs: 'none', md: 'block' } }}>
           <Stack direction="row" spacing={3}>
             {navLinks.map((link) => (
               <Button 
                 key={link.title} 
                 color="primary" 
-                // Set the component to Link only if it doesn't have a dropdown, otherwise it triggers the Menu
                 component={!link.hasDropdown ? Link : 'button'} 
                 to={link.path}
                 
-                // Highlight the Feedback button
+                // Highlight the Feedback button (Black on White)
                 variant={link.isHighlight ? 'contained' : 'text'}
-                color={link.isHighlight ? 'inherit' : 'primary'} 
-                
-                aria-controls={link.hasDropdown ? 'insight-menu' : undefined}
-                aria-haspopup={link.hasDropdown ? 'true' : undefined}
-                onClick={link.hasDropdown ? handleMenuClick : undefined}
                 sx={{
                   fontSize: '1rem',
                   fontWeight: link.isHighlight ? 700 : 500,
                   
                   ...(link.isHighlight && {
-                    backgroundColor: '#ffffff', // White background
-                    color: '#000000',          // Black text
+                    backgroundColor: '#000000',          // Black background
+                    color: '#ffffff',                    // White text
                     boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
                     '&:hover': { 
-                      backgroundColor: '#f0f0f0', 
+                      backgroundColor: '#333333', 
                       boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)',
                     },
                   }),
@@ -110,6 +175,9 @@ const AppHeader = ({ searchValue, onSearchChange }) => {
                     }
                   })
                 }}
+                aria-controls={link.hasDropdown ? 'insight-menu' : undefined}
+                aria-haspopup={link.hasDropdown ? 'true' : undefined}
+                onClick={link.hasDropdown ? handleMenuClick : undefined}
               >
                 {link.title}
                 {/* ANIMATED ARROW */}
@@ -125,7 +193,7 @@ const AppHeader = ({ searchValue, onSearchChange }) => {
           </Stack>
         </Box>
         
-        {/* MUI Menu Component for Dropdown */}
+        {/* MUI Menu Component for Dropdown (Desktop) */}
         <Menu
             id="insight-menu"
             anchorEl={anchorEl}
@@ -139,7 +207,6 @@ const AppHeader = ({ searchValue, onSearchChange }) => {
                 <MenuItem 
                     key={item.title} 
                     onClick={handleMenuClose} 
-                    // Use Link component inside MenuItem for router navigation
                     component={Link} 
                     to={item.path}
                 >
@@ -148,17 +215,17 @@ const AppHeader = ({ searchValue, onSearchChange }) => {
             ))}
         </Menu>
 
-        {/* 3. Search, Login, and Sign Up Buttons (Right) */}
+        {/* 3. Search, Auth Buttons, and Mobile Toggle (Right) */}
         <Stack direction="row" spacing={1} alignItems="center">
           
-          {/* Search Input */}
+          {/* Search Input (Hidden on Mobile) */}
           <TextField
             size="small"
             placeholder="Search NYC News..."
             variant="outlined"
             value={searchValue}
             onChange={(e) => onSearchChange(e.target.value)}
-            sx={{ width: 200 }}
+            sx={{ width: 200, display: { xs: 'none', sm: 'block' } }} // Hide on extra small screens
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -169,30 +236,61 @@ const AppHeader = ({ searchValue, onSearchChange }) => {
             }}
           />
 
-          {/* 🔑 UPDATED: Login Link */}
-          <Button 
-            variant="text" 
-            color="primary" 
-            sx={{ textTransform: 'none' }}
-            component={Link} // Use Link component
-            to="/login"      // Link to the new Login page
-          >
-            Login
-          </Button>
+          {/* Auth Buttons (Desktop Only) */}
+          <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+            <Button 
+              variant="text" 
+              color="primary" 
+              component={Link}
+              to="/login"
+            >
+              Login
+            </Button>
+            <Button 
+              variant="contained" 
+              sx={{ 
+                backgroundColor: '#000000', 
+                color: '#ffffff', 
+                fontWeight: 700, 
+                '&:hover': { backgroundColor: '#333333' } 
+              }}
+              component={Link} 
+              to="/signup"
+            >
+              Sign Up
+            </Button>
+          </Box>
           
-          {/* 🔑 UPDATED: Sign Up Link */}
-          <Button 
-            variant="contained" 
-            color="primary" 
-            sx={{ textTransform: 'none' }}
-            component={Link} // Use Link component
-            to="/signup"     // Link to the new Sign Up page
+          {/* Mobile Menu Icon (Mobile Only) */}
+          <IconButton
+            color="primary"
+            aria-label="open drawer"
+            edge="end"
+            onClick={handleDrawerToggle}
+            sx={{ ml: 2, display: { md: 'none' } }} // Show only on mobile
           >
-            Sign Up
-          </Button>
+            <MenuIcon />
+          </IconButton>
         </Stack>
         
       </Toolbar>
+      
+      {/* Mobile Navigation Drawer */}
+      <nav>
+        <Drawer
+          anchor="right"
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{ keepMounted: true }} // Better performance on mobile
+          sx={{
+            display: { xs: 'block', md: 'none' },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
+          }}
+        >
+          {drawer}
+        </Drawer>
+      </nav>
     </AppBar>
   );
 };
