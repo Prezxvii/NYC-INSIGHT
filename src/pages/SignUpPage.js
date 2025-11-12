@@ -1,3 +1,5 @@
+// src/pages/SignUpPage.js 
+
 import React from 'react';
 import { 
   Box, 
@@ -7,7 +9,6 @@ import {
   Button, 
   Divider, 
   Link,
-  Grid,
   Container
 } from '@mui/material';
 
@@ -44,8 +45,8 @@ const SignUpPage = () => {
               fontWeight: 800, 
               color: '#333', 
               mb: 3,
-              fontFamily: logoFontFamily, // Apply font stack
-              letterSpacing: '2px', // Increase letter spacing
+              fontFamily: logoFontFamily,
+              letterSpacing: '2px',
             }}
           >
             NYC INSIGHT
@@ -55,10 +56,10 @@ const SignUpPage = () => {
           <Typography 
             variant="h5" 
             sx={{ 
-              fontWeight: 800, // Increased weight
+              fontWeight: 800,
               mb: 1,
-              fontFamily: logoFontFamily, // Apply font stack
-              letterSpacing: '0.5px', // Subtle letter spacing
+              fontFamily: logoFontFamily,
+              letterSpacing: '0.5px',
             }}
           >
             Create Account 
