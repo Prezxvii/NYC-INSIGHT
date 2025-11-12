@@ -1,6 +1,24 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, Button, Box, Stack, Menu, MenuItem, TextField, InputAdornment, IconButton, Drawer, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
-import { KeyboardArrowDown as ArrowDownIcon, Search as SearchIcon, Menu as MenuIcon, Close as CloseIcon } from '@mui/icons-material'; // Added MenuIcon and CloseIcon
+import { 
+  AppBar, 
+  Toolbar, 
+  Typography, 
+  Button, 
+  Box, 
+  Stack, 
+  Menu, 
+  MenuItem, 
+  TextField, 
+  InputAdornment, 
+  IconButton, 
+  Drawer, 
+  List, 
+  ListItem, 
+  ListItemButton, 
+  ListItemText,
+  Divider // <--- FIXED: Added Divider import
+} from '@mui/material';
+import { KeyboardArrowDown as ArrowDownIcon, Search as SearchIcon, Menu as MenuIcon, Close as CloseIcon } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
@@ -22,21 +40,18 @@ const navLinks = [
   },
   { title: 'News & Media', path: '/media' }, 
   { title: 'Contact', path: '/contact' },
-  // Link to the Survey/Feedback page
   { title: 'Feedback', path: '/survey', isHighlight: true }
 ];
 
-// Create a motion version of the icon component for animation
 const MotionArrowDownIcon = motion(ArrowDownIcon);
 
 const AppHeader = ({ searchValue, onSearchChange }) => {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [mobileOpen, setMobileOpen] = useState(false); // NEW: State for mobile drawer
+  const [mobileOpen, setMobileOpen] = useState(false);
   const open = Boolean(anchorEl);
 
   const insightLink = navLinks.find(link => link.hasDropdown);
 
-  // Handlers for desktop dropdown menu
   const handleMenuClick = (event) => {
     if (insightLink) {
         setAnchorEl(event.currentTarget);
@@ -47,7 +62,6 @@ const AppHeader = ({ searchValue, onSearchChange }) => {
     setAnchorEl(null);
   };
   
-  // Handlers for mobile drawer menu
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -59,13 +73,13 @@ const AppHeader = ({ searchValue, onSearchChange }) => {
             <CloseIcon />
         </IconButton>
       </Box>
-      <Divider />
+      <Divider /> {/* This is the line that caused the error */}
       <List>
         {navLinks.map((link) => (
           <ListItem key={link.title} disablePadding>
             <ListItemButton 
               component={Link} 
-              to={link.path !== '#' ? link.path : link.title === 'City Insights' ? '/news' : link.path} // Link 'City Insights' to the first item for simplicity
+              to={link.path !== '#' ? link.path : link.title === 'City Insights' ? '/news' : link.path}
               onClick={link.hasDropdown ? undefined : handleDrawerToggle}
               sx={{ textAlign: 'center', py: 1.5 }}
             >
@@ -136,7 +150,7 @@ const AppHeader = ({ searchValue, onSearchChange }) => {
             cursor: 'pointer', 
             textDecoration: 'none', 
             color: 'primary.main',
-            fontFamily: logoFontFamily, // Applied logo font
+            fontFamily: logoFontFamily,
           }}
         >
           NYC INSIGHT
@@ -159,8 +173,8 @@ const AppHeader = ({ searchValue, onSearchChange }) => {
                   fontWeight: link.isHighlight ? 700 : 500,
                   
                   ...(link.isHighlight && {
-                    backgroundColor: '#000000',          // Black background
-                    color: '#ffffff',                    // White text
+                    backgroundColor: '#000000',
+                    color: '#ffffff',
                     boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
                     '&:hover': { 
                       backgroundColor: '#333333', 
@@ -225,7 +239,7 @@ const AppHeader = ({ searchValue, onSearchChange }) => {
             variant="outlined"
             value={searchValue}
             onChange={(e) => onSearchChange(e.target.value)}
-            sx={{ width: 200, display: { xs: 'none', sm: 'block' } }} // Hide on extra small screens
+            sx={{ width: 200, display: { xs: 'none', sm: 'block' } }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -267,7 +281,7 @@ const AppHeader = ({ searchValue, onSearchChange }) => {
             aria-label="open drawer"
             edge="end"
             onClick={handleDrawerToggle}
-            sx={{ ml: 2, display: { md: 'none' } }} // Show only on mobile
+            sx={{ ml: 2, display: { md: 'none' } }}
           >
             <MenuIcon />
           </IconButton>
@@ -282,7 +296,7 @@ const AppHeader = ({ searchValue, onSearchChange }) => {
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }} // Better performance on mobile
+          ModalProps={{ keepMounted: true }}
           sx={{
             display: { xs: 'block', md: 'none' },
             '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
